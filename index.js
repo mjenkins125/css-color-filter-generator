@@ -189,9 +189,11 @@ class Color {
 }
 
 class Solver {
-  constructor(target, baseColor) {
+  constructor(target, start) {
     this.target = target;
     this.targetHSL = target.hsl();
+    // this.start = start || new Color(0, 0, 0);
+    // this.startHSL = start.hsl();
     this.reusedColor = new Color(0, 0, 0);
   }
 
@@ -287,6 +289,7 @@ class Solver {
 
   loss(filters) {
     // Argument is array of percentages.
+    // const color = this.start;
     const color = this.reusedColor;
     color.set(0, 0, 0);
 
@@ -345,7 +348,7 @@ function compute() {
 
   const colorEnd = new Color(rgbEnd[0], rgbEnd[1], rgbEnd[2]);
   const colorStart = new Color(rgbStart[0], rgbStart[1], rgbStart[2]);
-  const solver = new Solver(colorEnd);
+  const solver = new Solver(colorEnd, colorStart);
   const result = solver.solve();
   const res = {
     colorStart: colorStart,
@@ -353,6 +356,8 @@ function compute() {
     solver,
     result,
   };
+
+  console.log(res);
 
   setPixel(res.colorStart, "startPixel");
   setPixel(res.colorEndReal, "realPixel");
@@ -381,10 +386,14 @@ function setPixel(color, prefix) {
   const rgb = color.toRgb();
   const hex = color.toHex();
   pixel.style.backgroundColor = rgb;
-  pixelTextRGB.innerText = rgb;
-  pixelTextRGB.setAttribute("data-clipboard-text", rgb);
-  pixelTextHEX.innerText = hex;
-  pixelTextHEX.setAttribute("data-clipboard-text", hex);
+  if (pixelTextRGB) {
+    pixelTextRGB.innerText = rgb;
+    pixelTextRGB.setAttribute("data-clipboard-text", rgb);
+  }
+  if (pixelTextHEX) {
+    pixelTextHEX.innerText = hex;
+    pixelTextHEX.setAttribute("data-clipboard-text", hex);
+  }
 }
 
 function validateColor(color) {
