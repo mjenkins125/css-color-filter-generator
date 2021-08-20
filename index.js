@@ -351,15 +351,7 @@ function compute() {
     lossMsg,
   };
 
-  if (res.result.loss < 1) {
-    res.lossMsg = "This is a perfect result.";
-  } else if (res.result.loss < 5) {
-    res.lossMsg = "The is close enough.";
-  } else if (res.result.loss < 15) {
-    res.lossMsg = "The color is somewhat off. Consider running it again.";
-  } else {
-    res.lossMsg = "The color is extremely off. Run it again!";
-  }
+  res.lossMsg = getLossMessage(res.result.loss);
 
   const filterPixel = document.getElementById("filterPixel");
   const filterPixelText = document.getElementById("filterPixelText");
@@ -397,6 +389,13 @@ function validateColor(color) {
   } else if (!submitButton.classList.contains("disabled")) {
     submitButton.classList.add("disabled");
   }
+}
+
+function getLossMessage(loss) {
+  if (loss < 1) return "This is a perfect result.";
+  if (loss < 5) return "The is close enough.";
+  if (loss < 15) return "The color is somewhat off. Consider running it again.";
+  return "The color is extremely off. Run it again!";
 }
 
 function onStart() {
