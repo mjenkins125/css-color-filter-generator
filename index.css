@@ -58,7 +58,11 @@ code:hover {
   cursor: pointer;
 }
 
-#color-input:disabled + label {
+input[id*="-color-input"] {
+  margin-right: 1rem;
+}
+
+#end-color-input:disabled + label {
   background-color: #ececec;
 }
 
@@ -133,7 +137,6 @@ code:hover {
   font-size: 18px;
   text-align: center;
   font-weight: bold;
-  margin-left: 30px;
 }
 
 .action-button:after {
