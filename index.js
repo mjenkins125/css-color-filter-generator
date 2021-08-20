@@ -332,41 +332,34 @@ class Solver {
 }
 
 function compute() {
-  const input = document.getElementById("color-input").value;
-  const rgb = hexToRgb(input);
+  const inputEnd = document.getElementById("end-color-input").value;
+  const rgbEnd = hexToRgb(inputEnd);
+  const inputStart =
+    document.getElementById("start-color-input").value || "#000000"; // default to black
+  const rgbStart = hexToRgb(inputStart);
 
-  if (rgb.length !== 3) {
+  if (rgbStart.length !== 3 || rgbEnd.length !== 3) {
     alert("Invalid format!");
     return;
   }
 
-  const color = new Color(rgb[0], rgb[1], rgb[2]);
-  const solver = new Solver(color);
+  const colorEnd = new Color(rgbEnd[0], rgbEnd[1], rgbEnd[2]);
+  const colorStart = new Color(rgbStart[0], rgbStart[1], rgbStart[2]);
+  const solver = new Solver(colorEnd);
   const result = solver.solve();
-  let lossMsg = "";
   const res = {
-    color,
+    colorStart: colorStart,
+    colorEndReal: colorEnd,
     solver,
     result,
-    lossMsg,
   };
 
-  res.lossMsg = getLossMessage(res.result.loss);
+  setPixel(res.colorStart, "startPixel");
+  setPixel(res.colorEndReal, "realPixel");
 
   const filterPixel = document.getElementById("filterPixel");
   const filterPixelText = document.getElementById("filterPixelText");
   const lossDetail = document.getElementById("lossDetail");
-  const realPixel = document.getElementById("realPixel");
-  const realPixelTextRGB = document.getElementById("realPixelTextRGB");
-  const realPixelTextHEX = document.getElementById("realPixelTextHEX");
-  const rgbColor = res.color.toRgb();
-  const hexColor = res.color.toHex();
-
-  realPixel.style.backgroundColor = rgbColor;
-  realPixelTextRGB.innerText = rgbColor;
-  realPixelTextRGB.setAttribute("data-clipboard-text", rgbColor);
-  realPixelTextHEX.innerText = hexColor;
-  realPixelTextHEX.setAttribute("data-clipboard-text", hexColor);
 
   filterPixel.style.filter = String(res.result.filterRaw);
   filterPixel.style.webkitFilter = String(res.result.filterRaw);
@@ -374,9 +367,24 @@ function compute() {
   filterPixelText.innerText = res.result.filter;
   filterPixelText.setAttribute("data-clipboard-text", res.result.filter);
 
-  lossDetail.innerHTML = `Loss: ${res.result.loss.toFixed(1)}. <b>${
-    res.lossMsg
-  }</b>`;
+  lossDetail.innerHTML = getLossMessage(res.result.loss);
+}
+
+/**
+ * @param {Color} color
+ * @param {string} prefix prefix of id
+ */
+function setPixel(color, prefix) {
+  const pixel = document.getElementById(`${prefix}`);
+  const pixelTextRGB = document.getElementById(`${prefix}TextRGB`);
+  const pixelTextHEX = document.getElementById(`${prefix}TextHEX`);
+  const rgb = color.toRgb();
+  const hex = color.toHex();
+  pixel.style.backgroundColor = rgb;
+  pixelTextRGB.innerText = rgb;
+  pixelTextRGB.setAttribute("data-clipboard-text", rgb);
+  pixelTextHEX.innerText = hex;
+  pixelTextHEX.setAttribute("data-clipboard-text", hex);
 }
 
 function validateColor(color) {
@@ -392,10 +400,13 @@ function validateColor(color) {
 }
 
 function getLossMessage(loss) {
-  if (loss < 1) return "This is a perfect result.";
-  if (loss < 5) return "The is close enough.";
-  if (loss < 15) return "The color is somewhat off. Consider running it again.";
-  return "The color is extremely off. Run it again!";
+  if (!loss) desc = "";
+  else if (loss < 1) desc = "This is a perfect result.";
+  else if (loss < 5) desc = "The is close enough.";
+  else if (loss < 15)
+    desc = "The color is somewhat off. Consider running it again.";
+  else desc = "The color is extremely off. Run it again!";
+  return `Loss: ${(loss || 0).toFixed(1)}. <b>${desc}</b>`;
 }
 
 function onStart() {
@@ -415,7 +426,8 @@ function onStart() {
   });
 
   document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("color-input").removeAttribute("disabled");
+    document.getElementById("start-color-input").removeAttribute("disabled");
+    document.getElementById("end-color-input").removeAttribute("disabled");
   });
 }
 

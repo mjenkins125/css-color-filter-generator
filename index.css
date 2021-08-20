@@ -54,7 +54,7 @@ section[class*="section"] {
   padding: 10px 0px;
 }
 
-code:hover {
+.copyable:hover {
   cursor: pointer;
 }
 
